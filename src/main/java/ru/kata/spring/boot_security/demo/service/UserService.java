@@ -14,6 +14,7 @@ import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -51,22 +52,17 @@ public class UserService implements UserDetailsService {
     }
 
     public boolean addUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-            return false;
-        }
+        Set<Role> roles = user.getRoles().stream()
+                .map(r -> roleRepository.findById(r.getId()).orElse(null))
+                .collect(Collectors.toSet());
 
-        Role roleUser = roleRepository.findById(1L).orElseThrow(); // ROLE_USER
-        user.setRoles(Set.of(roleUser));
+        user.setRoles(roles);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return true;
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
-    }
-
-    public boolean deleteUserById(Long id) {
+    public boolean deleteUser(Long id) {
         if (userRepository.findById(id).isEmpty()) {
             return false;
         }
@@ -74,22 +70,15 @@ public class UserService implements UserDetailsService {
         return true;
     }
 
-    public boolean updateUser(User user) {
-        if (userRepository.findById(user.getId()).isEmpty()) {
+    public boolean changeUser(Long id, String newFirstName, String newLastName, String newAge, String newEmail, String newPassword) {
+        if (userRepository.findById(id).isEmpty()) {
             return false;
         }
-
-        User userFromDb = userRepository.findById(user.getId()).get();
-
-        userFromDb.setFirstName(user.getFirstName());
-        userFromDb.setLastName(user.getLastName());
-        userFromDb.setEmail(user.getEmail());
-
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-
-        userRepository.save(userFromDb);
+        userRepository.findById(id).get().setFirstName(newFirstName);
+        userRepository.findById(id).get().setLastName(newLastName);
+        userRepository.findById(id).get().setAge(newAge);
+        userRepository.findById(id).get().setEmail(newEmail);
+        userRepository.findById(id).get().setPassword(passwordEncoder.encode(newPassword));
         return true;
     }
 }

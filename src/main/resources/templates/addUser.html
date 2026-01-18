@@ -1,24 +1,54 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>New user</title>
+    <title>Add user</title>
 </head>
+
 <body>
 
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Logout</button>
-</form>
-
-<h3>Add new user</h3>
-
-<form th:action="@{/new}" method="post" th:object="${user}">
-    <input type="text" th:field="*{firstName}" placeholder="First name"/>
-    <input type="text" th:field="*{lastName}" placeholder="Last name"/>
-    <input type="email" th:field="*{email}" placeholder="Email"/>
-    <input type="password" th:field="*{password}" placeholder="Password"/>
-    <button type="submit">Add user</button>
+<form th:method="POST" th:action="@{/admin/add}" th:object="${user}">
+    <div style="text-align: center;">
+        <label for="firstName">First name</label>
+        <input type="text" th:field="*{firstName}" id="firstName"/>
+        <br>
+        <br>
+        <label for="lastName">Last name</label>
+        <input type="text" th:field="*{lastName}" id="lastName"/>
+        <br>
+        <br>
+        <label for="age">Age</label>
+        <input type="text" th:field="*{age}" id="age"/>
+        <br>
+        <br>
+        <label for="email">Email</label>
+        <input type="text" th:field="*{email}" id="email" required/>
+        <br>
+        <br>
+        <label for="password">Password</label>
+        <input type="text" th:field="*{password}" id="password" required/>
+        <br>
+        <br>
+<!--        <label for="role-select">Select role</label>-->
+<!--        <select name="roles" id="role-select">-->
+<!--            <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role}"> </option>-->
+<!--        </select>-->
+        <th:block th:each="role: ${roles}">
+            <input type="checkbox" th:field="*{roles}"
+                   th:text="${role.name}" th:value="${role.id}" class="m-2" />
+        </th:block>
+        <br>
+        <br>
+        <input type="submit" value="Add user"/>
+        <br>
+        <br>
+        <form method="GET" action="/logout">
+            <input type="submit" value="Logout"/>
+        </form>
+    </div>
 </form>
 
 </body>
+
 </html>

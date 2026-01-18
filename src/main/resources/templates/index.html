@@ -4,11 +4,14 @@
     <title>Spring Security Example</title>
 </head>
 <body>
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Logout</button>
-</form>
-<h1>Welcome to Index PAGE!</h1>
 
+<div style="text-align: center;">
+    <h1>Welcome to Index PAGE!</h1>
+    <br>
+    <form method="GET" action="/logout">
+        <input type="submit" value="Logout"/>
+    </form>
+</div>
 
 </body>
 </html>
