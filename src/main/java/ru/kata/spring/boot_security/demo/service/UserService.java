@@ -16,4 +16,5 @@ public interface UserService {
                        String newAge,
                        String newEmail,
                        String newPassword);
+    boolean existsByEmail(String email);
 }
