@@ -10,11 +10,6 @@ public interface UserService {
     List<Role> listRoles();
     boolean addUser(User user);
     boolean deleteUser(Long id);
-    boolean changeUser(Long id,
-                       String newFirstName,
-                       String newLastName,
-                       String newAge,
-                       String newEmail,
-                       String newPassword);
+    boolean changeUser(User user);
     boolean existsByEmail(String email);
 }

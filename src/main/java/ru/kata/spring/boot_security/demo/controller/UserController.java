@@ -5,7 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.models.User;
+
 import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 @Controller
@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public String userHomePage(Authentication authentication, Model model) {
+    public String getUserHomePage(Authentication authentication, Model model) {
         model.addAttribute("user", userServiceImpl.loadUserByUsername(authentication.getName()));
         return "userHomePage";
     }

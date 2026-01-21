@@ -72,15 +72,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return true;
     }
 
-    public boolean changeUser(Long id, String newFirstName, String newLastName, String newAge, String newEmail, String newPassword) {
-        if (userRepository.findById(id).isEmpty()) {
-            return false;
-        }
-        userRepository.findById(id).get().setFirstName(newFirstName);
-        userRepository.findById(id).get().setLastName(newLastName);
-        userRepository.findById(id).get().setAge(newAge);
-        userRepository.findById(id).get().setEmail(newEmail);
-        userRepository.findById(id).get().setPassword(passwordEncoder.encode(newPassword));
+    @Override
+    public boolean changeUser(User user) {
+        User dbUser = userRepository.findById(user.getId()).orElse(null);
+        if (dbUser == null) return false;
+
+        dbUser.setFirstName(user.getFirstName());
+        dbUser.setLastName(user.getLastName());
+        dbUser.setAge(user.getAge());
+        dbUser.setEmail(user.getEmail());
+        dbUser.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        Set<Role> roles = user.getRoles().stream()
+                .map(r -> roleService.findById(r.getId()))
+                .collect(Collectors.toSet());
+        dbUser.setRoles(roles);
+
         return true;
     }
 

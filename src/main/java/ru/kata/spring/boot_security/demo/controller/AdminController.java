@@ -50,13 +50,15 @@ public class AdminController {
     }
 
     @GetMapping("admin/edit")
-    public String changeUser(@ModelAttribute("user") User user) {
+    public String changeUser(Model model) {
+        model.addAttribute("user", new User());
+        model.addAttribute("roles", userServiceImpl.listRoles());
         return "editUser";
     }
 
     @PatchMapping("admin/edit{id}")
-    public String changeUser(@ModelAttribute("user") User user, Long id, String firstName, String lastName, String age, String email, String password) {
-        userServiceImpl.changeUser(id, firstName, lastName, age, email, password);
+    public String changeUser(@ModelAttribute("user") User user) {
+        userServiceImpl.changeUser(user);
         return "redirect:/admin";
     }
 }
