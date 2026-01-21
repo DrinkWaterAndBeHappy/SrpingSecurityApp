@@ -12,6 +12,7 @@ import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,15 +68,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return true;
     }
 
-    public boolean changeUser(Long id, String newFirstName, String newLastName, String newAge, String newEmail, String newPassword) {
-        if (userRepository.findById(id).isEmpty()) {
-            return false;
-        }
-        userRepository.findById(id).get().setFirstName(newFirstName);
-        userRepository.findById(id).get().setLastName(newLastName);
-        userRepository.findById(id).get().setAge(newAge);
-        userRepository.findById(id).get().setEmail(newEmail);
-        userRepository.findById(id).get().setPassword(passwordEncoder.encode(newPassword));
+    public boolean changeUser(Long id, String newFirstName, String newLastName, String newAge,
+                              String newEmail, String newPassword, Set<Role> newRoles) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) return false;
+
+        User user = optionalUser.get();
+        user.setFirstName(newFirstName);
+        user.setLastName(newLastName);
+        user.setAge(newAge);
+        user.setEmail(newEmail);
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        // Добавляем изменение ролей
+        Set<Role> roles = newRoles.stream()
+                .map(r -> roleService.findById(r.getId()))
+                .collect(Collectors.toSet());
+        user.setRoles(roles);
+
         return true;
     }
+
+
 }
