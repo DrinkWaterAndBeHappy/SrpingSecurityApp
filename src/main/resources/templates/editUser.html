@@ -7,9 +7,7 @@
 </head>
 
 <body>
-<form th:method="POST"
-      th:action="@{/admin/edit/{id}(id=${user.id})}"
-      th:object="${user}">
+<form th:method="POST" th:action="@{/admin/edit/{id}(id=${user.getId()})}" th:object="${user}">
     <input type="hidden" name="_method" value="PATCH"/>
     <div style="text-align: center;">
         <label for="id">Enter the ID of the user you want to edit:</label>
@@ -40,18 +38,8 @@
         <label for="password">Enter new password:</label>
         <br>
         <input type="text" th:field="*{password}" id="password"/>
-        <br><br>
-
-        <label>Выбери роли:</label>
         <br>
-        <th:block th:each="role: ${roles}">
-            <input type="checkbox"
-                   th:field="*{roles}"
-                   th:value="${role.id}"
-                   th:text="${role.name}"/>
-        </th:block>
-
-        <br><br>
+        <br>
         <input type="submit" value="Edit user"/>
         <br>
         <br>
