@@ -56,7 +56,10 @@
         <br>
         <br>
         <form method="GET" action="/logout">
-            <input type="submit" value="Logout"/>
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </form>
         </form>
     </div>
 </form>

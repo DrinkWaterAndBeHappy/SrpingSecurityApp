@@ -47,7 +47,10 @@
 
             <div class="d-flex justify-content-between">
                 <button type="submit" class="btn btn-success">Add user</button>
-                <a href="/admin" class="btn btn-secondary">Back</a>
+                <form th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-secondary">Logout</button>
+                </form>
             </div>
         </form>
     </div>

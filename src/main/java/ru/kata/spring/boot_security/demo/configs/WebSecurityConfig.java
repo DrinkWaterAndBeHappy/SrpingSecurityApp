@@ -31,11 +31,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http
+                .authorizeRequests()
+                .antMatchers("/login", "/css/**", "/js/**").permitAll() // чтобы доступ к login.html был открыт
                 .antMatchers("/user", "/").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .and()
-                .formLogin().successHandler(successUserHandler)
+                .formLogin()
+                .loginPage("/login")        // указываем свою страницу логина
+                .successHandler(successUserHandler)
                 .permitAll()
                 .and()
                 .logout()

@@ -39,7 +39,10 @@
             <a href="/admin/add" class="btn btn-success">Add user</a>
             <a href="/admin/edit" class="btn btn-warning">Edit user</a>
             <a href="/admin/delete" class="btn btn-danger">Delete user</a>
-            <a href="/logout" class="btn btn-secondary">Logout</a>
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </form>
         </div>
     </div>
 </div>
