@@ -48,7 +48,7 @@ public class InitData {
 
             User admin = new User();
             admin.setFirstName("Admin");
-            admin.setLastName("Root");
+            admin.setLastName("Adminov");
             admin.setAge("30");
             admin.setEmail("admin@mail.com");
             admin.setPassword("admin");
@@ -56,7 +56,7 @@ public class InitData {
 
             User user = new User();
             user.setFirstName("User");
-            user.setLastName("Simple");
+            user.setLastName("Userov");
             user.setAge("25");
             user.setEmail("user@mail.com");
             user.setPassword("user");
