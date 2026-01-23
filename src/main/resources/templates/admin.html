@@ -14,14 +14,19 @@
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-dark bg-dark">
-    <span class="navbar-brand" sec:authentication="name">admin</span>
-    <span class="navbar-text text-white">
-        Roles: <span sec:authentication="principal.authorities"></span>
+<nav class="navbar navbar-dark bg-dark px-3">
+
+    <span class="navbar-brand text-white">
+        <span sec:authentication="name"></span>
+        with roles:
+        <span th:each="role : ${#authentication.principal.authorities}"
+              th:text="${#strings.replace(role.authority, 'ROLE_', '') + ' '}"></span>
     </span>
-    <form th:action="@{/logout}" method="post">
+
+    <form th:action="@{/logout}" method="post" class="ml-auto">
         <button class="btn btn-dark text-secondary">Logout</button>
     </form>
+
 </nav>
 
 <div class="container-fluid">
@@ -59,8 +64,9 @@
                         <thead>
                         <tr>
                             <th>ID</th>
-                            <th>First</th>
-                            <th>Last</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Age</th>
                             <th>Email</th>
                             <th>Roles</th>
                             <th>Edit</th>
@@ -72,6 +78,7 @@
                             <td th:text="${user.id}"/>
                             <td th:text="${user.firstName}"/>
                             <td th:text="${user.lastName}"/>
+                            <td th:text="${user.age}"/>
                             <td th:text="${user.email}"/>
                             <td th:text="${#strings.listJoin(user.roles.![name], ', ')}"/>
                             <td>
