@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>User page</title>
+
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-dark">
+  <span class="navbar-brand" sec:authentication="name"></span>
+  <span class="navbar-text text-white">
+        Roles: <span sec:authentication="principal.authorities"></span>
+    </span>
+  <form th:action="@{/logout}" method="post">
+    <button class="btn btn-dark text-secondary">Logout</button>
+  </form>
+</nav>
+
+<div class="container-fluid">
+  <div class="row">
+
+    <!-- LEFT MENU -->
+    <div class="col-md-2 bg-white pt-3">
+      <div class="nav flex-column nav-pills">
+        <a class="nav-link"
+           sec:authorize="hasRole('ADMIN')"
+           href="/admin">Admin</a>
+
+        <a class="nav-link active" href="/user">User</a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="col-md-10 bg-light pt-3">
+      <h1>User information</h1>
+
+      <div class="card mt-3">
+        <div class="card-header">
+          <h5>Your profile</h5>
+        </div>
+        <div class="card-body">
+
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>First</th>
+              <th>Last</th>
+              <th>Email</th>
+              <th>Age</th>
+              <th>Roles</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+              <td th:text="${user.id}"/>
+              <td th:text="${user.firstName}"/>
+              <td th:text="${user.lastName}"/>
+              <td th:text="${user.email}"/>
+              <td th:text="${user.age}"/>
+              <td th:text="${#strings.listJoin(user.roles.![name], ', ')}"/>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

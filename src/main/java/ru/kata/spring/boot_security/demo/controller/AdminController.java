@@ -9,59 +9,48 @@ import ru.kata.spring.boot_security.demo.service.RoleServiceImpl;
 import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 @Controller
-@RequestMapping
+@RequestMapping("/admin")
 public class AdminController {
 
-    private final RoleServiceImpl roleServiceImpl;
-    private final UserServiceImpl userServiceImpl;
+    private final RoleServiceImpl roleService;
+    private final UserServiceImpl userService;
 
     @Autowired
-    public AdminController(UserServiceImpl userServiceImpl, RoleServiceImpl roleServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
-        this.roleServiceImpl = roleServiceImpl;
+    public AdminController(UserServiceImpl userService, RoleServiceImpl roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
     }
 
-
-    @GetMapping("admin")
-    public String printUsers(Model model) {
-        model.addAttribute("users", userServiceImpl.getAllUsers());
-        return "allUsers";
-    }
-
-    @GetMapping("admin/add")
-    public String addUser(Model model) {
+    @GetMapping
+    public String adminPanel(Model model) {
+        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("allRoles", roleService.findAll());
         model.addAttribute("user", new User());
-        model.addAttribute("roles", roleServiceImpl.findAll());
-        return "addUser";
+        return "admin";
     }
 
-    @PostMapping("admin/add")
-    public String addUser(@ModelAttribute("user") User user) {
-        userServiceImpl.addUser(user);
+    @PostMapping("/add")
+    public String addUser(@ModelAttribute User user) {
+        userService.addUser(user);
         return "redirect:/admin";
     }
 
-    @GetMapping("admin/delete")
-    public String deleteUser(@ModelAttribute("user") User user) {
-        return "deleteUser";
-    }
-
-    @DeleteMapping("admin/delete{id}")
-    public String deleteUser(@ModelAttribute("user") User user, Long id) {
-        userServiceImpl.deleteUser(id);
+    @PostMapping("/edit")
+    public String editUser(@RequestParam Long id,
+                           @ModelAttribute User user) {
+        userService.changeUser(id,
+                user.getFirstName(),
+                user.getLastName(),
+                user.getAge(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getRoles());
         return "redirect:/admin";
     }
 
-    @GetMapping("admin/edit")
-    public String changeUser(@ModelAttribute("user") User user, Model model) {
-        model.addAttribute("roles", roleServiceImpl.findAll());
-        return "editUser";
-    }
-
-    @PatchMapping("admin/edit{id}")
-    public String changeUser(@ModelAttribute("user") User user, Long id) {
-        userServiceImpl.changeUser(id, user.getFirstName(), user.getLastName(), user.getAge(),
-                user.getEmail(), user.getPassword(), user.getRoles());
+    @PostMapping("/delete")
+    public String deleteUser(@RequestParam Long id) {
+        userService.deleteUser(id);
         return "redirect:/admin";
     }
 }

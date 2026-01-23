@@ -78,9 +78,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setLastName(newLastName);
         user.setAge(newAge);
         user.setEmail(newEmail);
-        user.setPassword(passwordEncoder.encode(newPassword));
 
-        // Добавляем изменение ролей
+        if (newPassword != null && !newPassword.isBlank()) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+        }
+
         Set<Role> roles = newRoles.stream()
                 .map(r -> roleService.findById(r.getId()))
                 .collect(Collectors.toSet());
