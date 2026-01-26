@@ -187,14 +187,23 @@
                     <td>${u.email}</td>
                     <td>${u.roles.map(r => r.name).join(', ')}</td>
                     <td><button class="btn btn-info btn-sm" onclick="openEdit(${u.id})">Edit</button></td>
-                    <td><button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Delete</button></td>
+                    <td>
+    <button class="btn btn-danger btn-sm" onclick="openDeleteModal(${u.id}, '${u.email}')">
+        Delete
+    </button>
+</td>
                 </tr>`;
                                 });
                             });
                     }
                 </script>
                 <script>
+                    let deleteUserId = null;
+                </script>
+                <script>
                     function deleteUser(id) {
+                        if (!confirm("Вы уверены, что хотите удалить пользователя?")) return;
+
                         fetch(`/api/admin/users/${id}`, {
                             method: 'DELETE'
                         }).then(() => loadUsers());
@@ -285,5 +294,46 @@
                     });
                 }
             </script>
+
+                <!-- DELETE CONFIRM MODAL -->
+                <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">Подтверждение удаления</h5>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+
+                            <div class="modal-body">
+                                Вы действительно хотите удалить пользователя:
+                                <br>
+                                <b id="deleteUserEmail"></b>?
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                                <button class="btn btn-danger" id="confirmDeleteBtn">Удалить</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    function openDeleteModal(id, email) {
+                        deleteUserId = id;
+                        document.getElementById('deleteUserEmail').textContent = email;
+                        $('#deleteConfirmModal').modal('show');
+                    }
+
+                    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+                        fetch(`/api/admin/users/${deleteUserId}`, {
+                            method: 'DELETE'
+                        }).then(() => {
+                            $('#deleteConfirmModal').modal('hide');
+                            loadUsers();
+                        });
+                    });
+                </script>
 </body>
 </html>
