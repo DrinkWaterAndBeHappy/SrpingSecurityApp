@@ -32,13 +32,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .csrf().ignoringAntMatchers("/api/**")
+                .and()
                 .authorizeRequests()
-                .antMatchers("/login", "/css/**", "/js/**").permitAll() // чтобы доступ к login.html был открыт
+                .antMatchers("/login", "/css/**", "/js/**").permitAll()
                 .antMatchers("/user", "/").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/**").hasRole("ADMIN")
                 .and()
                 .formLogin()
-                .loginPage("/login")        // указываем свою страницу логина
+                .loginPage("/login")
                 .successHandler(successUserHandler)
                 .permitAll()
                 .and()

@@ -77,30 +77,7 @@
                                     <th>Delete</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr th:each="user : ${users}">
-                                    <td th:text="${user.id}"></td>
-                                    <td th:text="${user.firstName}"></td>
-                                    <td th:text="${user.lastName}"></td>
-                                    <td th:text="${user.age}"></td>
-                                    <td th:text="${user.email}"></td>
-                                    <td th:text="${#strings.listJoin(user.roles.![name], ', ')}"></td>
-                                    <td>
-                                        <button class="btn btn-info btn-sm"
-                                                data-toggle="modal"
-                                                th:data-target="${'#editModal' + user.id}">
-                                            Edit
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-danger btn-sm"
-                                                data-toggle="modal"
-                                                th:data-target="${'#deleteModal' + user.id}">
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                                </tbody>
+                                <tbody id="usersTableBody"></tbody>
                             </table>
                         </div>
 
@@ -114,7 +91,7 @@
                             <h5 class="mb-0">Add new user</h5>
                         </div>
                         <div class="card-body">
-                            <form th:action="@{/admin/add}" method="post" class="d-flex flex-column align-items-center">
+                            <form id="addUserForm">
 
                                 <div class="mb-2 w-50">
                                     <label class="form-label d-block text-center fw-bold">First name</label>
@@ -143,7 +120,7 @@
 
                                 <div class="mb-3 w-50">
                                     <label class="form-label d-block text-center fw-bold">Roles</label>
-                                    <select name="roles" multiple class="form-control" style="height: 3.5em;">
+                                    <select id="rolesSelect" name="roles" multiple class="form-control">
                                         <option th:each="role : ${allRoles}"
                                                 th:value="${role.id}"
                                                 th:text="${role.name}">
@@ -160,96 +137,153 @@
                     </div>
                 </div>
 
-                <!-- MODALS -->
-<div th:each="user : ${users}">
+                <!-- EDIT USER MODAL -->
+                <div class="modal fade" id="editModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
 
-    <!-- EDIT MODAL -->
-    <div class="modal fade" th:id="${'editModal' + user.id}">
-        <div class="modal-dialog">
-            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit user</h5>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
 
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit user</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <div class="modal-body">
+                                <input type="hidden" id="editId">
+
+                                <input id="editFirstName" class="form-control mb-2" placeholder="First name">
+                                <input id="editLastName" class="form-control mb-2" placeholder="Last name">
+                                <input id="editAge" type="number" class="form-control mb-2" placeholder="Age">
+                                <input id="editEmail" class="form-control mb-2" placeholder="Email">
+                                <input id="editPassword" type="password" class="form-control mb-2" placeholder="New password">
+
+                                <label>Roles</label>
+                                <select id="editRoles" multiple class="form-control"></select>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
 
-                <form th:action="@{/admin/edit}" method="post">
-                    <input type="hidden" name="id" th:value="${user.id}">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <script>
+                    document.addEventListener("DOMContentLoaded", loadUsers);
 
-                    <div class="modal-body">
+                    function loadUsers() {
+                        fetch('/api/admin/users')
+                            .then(res => res.json())
+                            .then(users => {
+                                const tbody = document.getElementById('usersTableBody');
+                                tbody.innerHTML = '';
+                                users.forEach(u => {
+                                    tbody.innerHTML += `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${u.firstName}</td>
+                    <td>${u.lastName}</td>
+                    <td>${u.age}</td>
+                    <td>${u.email}</td>
+                    <td>${u.roles.map(r => r.name).join(', ')}</td>
+                    <td><button class="btn btn-info btn-sm" onclick="openEdit(${u.id})">Edit</button></td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Delete</button></td>
+                </tr>`;
+                                });
+                            });
+                    }
+                </script>
+                <script>
+                    function deleteUser(id) {
+                        fetch(`/api/admin/users/${id}`, {
+                            method: 'DELETE'
+                        }).then(() => loadUsers());
+                    }
+                </script>
+                <script>
+                    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
 
-                        <!-- ID (только для просмотра) -->
-                        <div class="mb-2 w-33">
-                            <label class="form-label d-block text-center fw-bold">ID</label>
-                            <input type="text" class="form-control" th:value="${user.id}" readonly>
-                        </div>
+                        const user = {
+                            firstName: this.firstName.value,
+                            lastName: this.lastName.value,
+                            age: this.age.value,
+                            email: this.email.value,
+                            password: this.password.value,
+                            roles: Array.from(this.roles.selectedOptions).map(o => ({id: o.value}))
+                        };
 
-                        <div class="mb-2 w-33">
-                            <label class="form-label d-block text-center fw-bold">First name</label>
-                            <input name="firstName" th:value="${user.firstName}" class="form-control">
-                        </div>
+                        fetch('/api/admin/users', {
+                            method: 'POST',
+                            headers: {'Content-Type':'application/json'},
+                            body: JSON.stringify(user)
+                        }).then(() => {
+                            this.reset();
+                            loadUsers();
+                        });
+                    });
+                </script>
+                <script>
+                    function loadRoles() {
+                        fetch('/api/admin/roles')
+                            .then(res => res.json())
+                            .then(roles => {
+                                const select = document.getElementById('rolesSelect');
+                                select.innerHTML = '';
+                                roles.forEach(r => {
+                                    select.innerHTML += `<option value="${r.id}">${r.name}</option>`;
+                                });
+                            });
+                    }
 
-                        <div class="mb-2 w-33">
-                            <label class="form-label d-block text-center fw-bold">Last name</label>
-                            <input name="lastName" th:value="${user.lastName}" class="form-control">
-                        </div>
+                    document.addEventListener("DOMContentLoaded", loadRoles);
+                </script>
+            <script>
+                function openEdit(id) {
+                    Promise.all([
+                        fetch('/api/admin/users').then(r => r.json()),
+                        fetch('/api/admin/roles').then(r => r.json())
+                    ]).then(([users, roles]) => {
+                        const user = users.find(u => u.id === id);
 
-                        <div class="mb-2 w-33">
-                            <label class="form-label d-block text-center fw-bold">Age</label>
-                            <input type="number" name="age" th:value="${user.age}" class="form-control" min="0" max="120" style="width: 100%;">
-                        </div>
+                        editId.value = user.id;
+                        editFirstName.value = user.firstName;
+                        editLastName.value = user.lastName;
+                        editAge.value = user.age;
+                        editEmail.value = user.email;
+                        editPassword.value = '';
 
-                        <div class="mb-2 w-33">
-                            <label class="form-label d-block text-center fw-bold">Email</label>
-                            <input name="email" th:value="${user.email}" class="form-control">
-                        </div>
+                        const rolesSelect = document.getElementById('editRoles');
+                        rolesSelect.innerHTML = '';
+                        roles.forEach(role => {
+                            const selected = user.roles.some(r => r.id === role.id);
+                            rolesSelect.innerHTML += `<option value="${role.id}" ${selected ? 'selected' : ''}>${role.name}</option>`;
+                        });
 
-                        <div class="mb-2 w-33">
-                            <label class="form-label d-block text-center fw-bold">Password</label>
-                            <input name="password" placeholder="New password" class="form-control">
-                        </div>
+                        $('#editModal').modal('show');
+                    });
+                }
+            </script>
+            <script>
+                function saveEdit() {
+                    const user = {
+                        firstName: editFirstName.value,
+                        lastName: editLastName.value,
+                        age: editAge.value,
+                        email: editEmail.value,
+                        password: editPassword.value,
+                        roles: Array.from(editRoles.selectedOptions).map(o => ({id: o.value}))
+                    };
 
-                        <div class="mb-2 w-33">
-                            <label class="form-label d-block text-center fw-bold">Roles</label>
-                            <select name="roles" multiple class="form-control" style="height: 3.5em; width: 100%;">
-                                <option th:each="role : ${allRoles}"
-                                        th:value="${role.id}"
-                                        th:text="${role.name}"
-                                        th:selected="${user.roles.contains(role)}">
-                                </option>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-primary">Save</button>
-                    </div>
-                </form>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- DELETE MODAL -->
-    <div class="modal fade" th:id="${'deleteModal' + user.id}">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form th:action="@{/admin/delete}" method="post">
-                    <input type="hidden" name="id" th:value="${user.id}">
-                    <div class="modal-body text-center">
-                        Delete user <b th:text="${user.email}"></b>?
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-danger">Delete</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-</div>
-
+                    fetch(`/api/admin/users/${editId.value}`, {
+                        method: 'PUT',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(user)
+                    }).then(() => {
+                        $('#editModal').modal('hide');
+                        loadUsers();
+                    });
+                }
+            </script>
 </body>
 </html>

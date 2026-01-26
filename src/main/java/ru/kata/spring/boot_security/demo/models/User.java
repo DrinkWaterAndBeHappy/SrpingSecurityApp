@@ -1,5 +1,7 @@
 package ru.kata.spring.boot_security.demo.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -31,6 +33,7 @@ public class User implements UserDetails {
     @Column(name = "user_age", nullable = false, length = 3)
     private String age;
 
+    @JsonIgnoreProperties("users")
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles")
     private Set<Role> roles;
